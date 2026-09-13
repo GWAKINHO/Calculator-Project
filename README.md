@@ -1,35 +1,36 @@
-# 📱 Multi-functional Web Calculator
+# 🧩 기능 모듈: 공학용 계산기 (Scientific Calculator)
 
-> 웹 브라우저 환경에서 동작하는 가볍고 직관적인 기본 계산기 및 공학용 계산기 프로젝트입니다.
-
----
-
-## 📖 1. 프로젝트 소개
-* **개요**: HTML, CSS, JavaScript를 기반으로 구현된 인터랙티브 웹 계산기 모음입니다.
-* **주요 구성 기능**:
-  * **기본 계산기 (Basic Calculator)**: 직관적인 사칙연산(`+`, `-`, `×`, `÷`) 및 반응형 그리드 UI
-  * **공학용 계산기 (Scientific Calculator)**: 삼각함수, 거듭제곱, 지수/로그, 각도 단위 전환(Deg/Rad), 한 글자 삭제(⌫) 지원
+이 폴더는 기본 사칙연산을 넘어 삼각함수, 지수/로그, 거듭제곱, 괄호 연산 및 각도 단위 전환(Deg/Rad)을 지원하는 **고급 수학 연산 모듈**을 포함하고 있습니다.
 
 ---
 
-## 🛠 2. 개발 및 실행 환경
-* **OS**: Windows 11 / macOS / Linux (크로스 플랫폼)
-* **언어 및 기술 스택**:
-  * HTML5
-  * CSS3 (CSS Grid, Flexbox, CSS Variables)
-  * Vanilla JavaScript (ES6+)
-* **개발 도구**: Visual Studio Code
-* **실행 환경**: 최신 웹 브라우저 (Chrome, Edge, Safari, Firefox 등 별도 설치 없이 바로 실행)
+## 📌 1. 기능 설명
+* **담당 역할**:
+  * 고급 수학 함수(삼각함수, 로그, 제곱근, 거듭제곱 등)의 입력 수식 처리
+  * 각도 단위(도 Deg / 라디안 Rad) 상호 전환 기능 제공
+  * 백스페이스(⌫)를 통한 한 글자 삭제 및 괄호 수식 연산 지원
+* **입력 및 출력**:
+  * **Input**: 숫자, 기본 연산자, 공학용 함수(`sin`, `cos`, `tan`, `sqrt`, `log`, `ln`, `exp`, `abs`), 상수(`pi`, `e`), 괄호, 거듭제곱(`^`)
+  * **Output**: 계산된 실수 결과 값 또는 수식 오류 시 `Error`
 
 ---
 
-## 📂 3. 디렉터리 구조
-```text
-calculator-repo/
-├── basic-calculator/              # 기본 사칙연산 계산기 모듈
-│   ├── basic_calculator.html
-│   └── README.md
-├── scientific-calculator/         # 공학용 계산기 모듈
-│   ├── scientific_calculator.html
-│   └── README.md
-└── README.md                      # 프로젝트 총괄 문서
+## 💻 2. 소스코드 구성 및 파일별 역할
+
+| 파일명 | 파일 구분 | 상세 역할 및 핵심 로직 |
+| :--- | :--- | :--- |
+| `scientific_calculator.html` | UI & Script | • 4열 그리드 레이아웃 기반 공학용 키패드 구성<br>• `degMode` 토글을 통한 각도 모드 상태 관리<br>• 화이트리스트 토큰 기반 수식 검증 및 안전한 함수 실행 |
+
+---
+
+## 📚 3. 핵심 로직 및 안전한 연산 처리
+
+* **토큰 검증 기반 유효성 체크 (`validate`)**:
+  * 정규식 `/^[0-9a-zA-Z+\-*/^.(), ]+$/`로 허용된 문자 집합만 통과시킵니다.
+  * 단어 단위 검사를 통해 `allowedTokens`(`sin`, `cos`, `sqrt`, `pi` 등)에 등록되지 않은 임의의 스크립트나 알 수 없는 변수 실행을 차단합니다.
+* **거듭제곱 및 각도 변환 (`evaluate`)**:
+  * 사용자가 입력한 거듭제곱 기호 `^`를 자바스크립트의 거듭제곱 연산자 `**`로 자동 치환합니다.
+  * `degMode`가 활성화된 경우 `Math.PI / 180` 계수를 곱해 삼각함수가 올바른 도(Degree) 단위로 계산되도록 변환합니다.
+* **스코프 주입(Scope Injection) 방식의 연산**:
+  * 전역 `window` 객체 오염을 방지하기 위해 `Math` 객체의 함수들을 `scope` 파라미터로 격리 주입하여 안전하게 연산을 실행합니다.
+  * 계산 결과는 `Math.round(result * 1e10) / 1e10`을 거쳐 부동소수점 오차를 최소화합니다.

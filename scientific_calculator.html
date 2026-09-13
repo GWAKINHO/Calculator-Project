@@ -1,0 +1,140 @@
+<h2 class="sr-only">삼각함수, 지수, 로그, 괄호를 지원하는 공학용 계산기</h2>
+<div style="max-width:360px; margin:0 auto; background:var(--surface-2); border:0.5px solid var(--border); border-radius:12px; padding:1rem;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+    <span id="mode-label" style="font-size:12px; color:var(--text-secondary);">각도 단위: Deg</span>
+    <button id="mode-toggle" style="height:28px; padding:0 10px; font-size:12px;">Deg/Rad 전환</button>
+  </div>
+  <div id="display" style="background:var(--surface-1); border-radius:var(--radius); padding:14px; text-align:right; font-size:22px; font-weight:500; margin-bottom:10px; min-height:32px; word-break:break-all;">0</div>
+  <div id="grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:6px;"></div>
+</div>
+
+<script>
+(function(){
+  const container = document.currentScript.previousElementSibling;
+  const display = container.querySelector('#display');
+  const grid = container.querySelector('#grid');
+  const modeToggle = container.querySelector('#mode-toggle');
+  const modeLabel = container.querySelector('#mode-label');
+
+  let expr = '0';
+  let degMode = true;
+
+  const allowedTokens = new Set(['sin','cos','tan','sqrt','log10','log','ln','exp','abs','pi','e']);
+
+  function validate(safeExpr){
+    if(!/^[0-9a-zA-Z+\-*/^.(), ]+$/.test(safeExpr)) return false;
+    const words = safeExpr.match(/[a-zA-Z]+/g) || [];
+    for(const w of words){
+      if(!allowedTokens.has(w)) return false;
+    }
+    return true;
+  }
+
+  function evaluate(rawExpr){
+    let e = rawExpr.replace(/\^/g, '**');
+    if(!validate(e)) return 'Error';
+    const angleFactor = degMode ? Math.PI/180 : 1;
+    const scope = {
+      sin: x => Math.sin(x*angleFactor),
+      cos: x => Math.cos(x*angleFactor),
+      tan: x => Math.tan(x*angleFactor),
+      sqrt: Math.sqrt,
+      log10: Math.log10,
+      log: Math.log,
+      ln: Math.log,
+      exp: Math.exp,
+      abs: Math.abs,
+      pi: Math.PI,
+      e: Math.E
+    };
+    try{
+      const fnBody = 'const {sin,cos,tan,sqrt,log10,log,ln,exp,abs,pi,e} = scope; return (' + e + ');';
+      let result = Function('scope', fnBody)(scope);
+      if(typeof result !== 'number' || !isFinite(result)) return 'Error';
+      result = Math.round(result * 1e10) / 1e10;
+      return String(result);
+    } catch(err){
+      return 'Error';
+    }
+  }
+
+  function render(){
+    display.textContent = expr;
+  }
+
+  function press(val){
+    if(val === 'C'){
+      expr = '0';
+    } else if(val === '⌫'){
+      if(expr.length <= 1 || expr === 'Error'){
+        expr = '0';
+      } else {
+        expr = expr.slice(0, -1);
+      }
+    } else if(val === '='){
+      expr = evaluate(expr);
+    } else if(['sin','cos','tan','sqrt','log10','log','ln','exp','abs'].includes(val)){
+      if(expr === '0' || expr === 'Error'){
+        expr = val + '(';
+      } else {
+        expr += val + '(';
+      }
+    } else if(val === 'pi' || val === 'e'){
+      if(expr === '0' || expr === 'Error'){
+        expr = val;
+      } else {
+        expr += val;
+      }
+    } else {
+      if(expr === '0' || expr === 'Error'){
+        expr = (val === '.') ? '0.' : val;
+      } else {
+        expr += val;
+      }
+    }
+    render();
+  }
+
+  const rows = [
+    ['sin','cos','tan','⌫'],
+    ['sqrt','^','(',')'],
+    ['log','ln','log10','C'],
+    ['7','8','9','/'],
+    ['4','5','6','*'],
+    ['1','2','3','-'],
+    ['0','.','pi','+'],
+    ['e','abs','','=']
+  ];
+
+  rows.forEach(row => {
+    row.forEach(label => {
+      if(label === ''){
+        grid.appendChild(document.createElement('div'));
+        return;
+      }
+      const btn = document.createElement('button');
+      btn.textContent = label;
+      btn.style.height = '40px';
+      btn.style.fontSize = label.length > 3 ? '12px' : '15px';
+      if(label === '='){
+        btn.style.background = 'var(--bg-accent)';
+        btn.style.color = 'var(--text-accent)';
+        btn.style.border = '0.5px solid var(--border-accent)';
+      } else if(label === 'C'){
+        btn.style.color = 'var(--text-danger)';
+      } else if(['+','-','*','/','^'].includes(label)){
+        btn.style.color = 'var(--text-accent)';
+      }
+      btn.addEventListener('click', () => press(label));
+      grid.appendChild(btn);
+    });
+  });
+
+  modeToggle.addEventListener('click', () => {
+    degMode = !degMode;
+    modeLabel.textContent = '각도 단위: ' + (degMode ? 'Deg' : 'Rad');
+  });
+
+  render();
+})();
+</script>
