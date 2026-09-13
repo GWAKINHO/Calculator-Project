@@ -1,0 +1,84 @@
+<h2 class="sr-only">숫자 계산을 위한 기본 계산기</h2>
+<div style="max-width:320px; margin:0 auto; background:var(--surface-2); border:0.5px solid var(--border); border-radius:12px; padding:1rem;">
+  <div id="display" style="background:var(--surface-1); border-radius:var(--radius); padding:16px; text-align:right; font-size:28px; font-weight:500; margin-bottom:12px; min-height:40px; word-break:break-all;">0</div>
+  <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px;">
+  </div>
+</div>
+
+<script>
+(function(){
+  const container = document.currentScript.previousElementSibling;
+  const display = container.querySelector('#display');
+  const grid = container.querySelector('div[style*="grid-template-columns"]');
+
+  const buttons = [
+    ['C','','','÷'],
+    ['7','8','9','×'],
+    ['4','5','6','-'],
+    ['1','2','3','+'],
+    ['0','.','','=']
+  ];
+
+  let expr = '0';
+
+  function render(){
+    display.textContent = expr;
+  }
+
+  function press(val){
+    if(val === 'C'){
+      expr = '0';
+    } else if(val === '='){
+      try{
+        const safe = expr.replace(/×/g,'*').replace(/÷/g,'/');
+        if(!/^[0-9+\-*/.() ]+$/.test(safe)){
+          expr = 'Error';
+        } else {
+          let result = Function('"use strict";return (' + safe + ')')();
+          if(!isFinite(result)){
+            expr = 'Error';
+          } else {
+            result = Math.round(result * 1e10) / 1e10;
+            expr = String(result);
+          }
+        }
+      } catch(e){
+        expr = 'Error';
+      }
+    } else {
+      if(expr === '0' || expr === 'Error'){
+        expr = val;
+      } else {
+        expr += val;
+      }
+    }
+    render();
+  }
+
+  buttons.forEach(row => {
+    row.forEach(label => {
+      if(label === ''){
+        const spacer = document.createElement('div');
+        grid.appendChild(spacer);
+        return;
+      }
+      const btn = document.createElement('button');
+      btn.textContent = label;
+      btn.style.height = '48px';
+      btn.style.fontSize = '18px';
+      if(['÷','×','-','+','='].includes(label)){
+        btn.style.background = 'var(--bg-accent)';
+        btn.style.color = 'var(--text-accent)';
+        btn.style.border = '0.5px solid var(--border-accent)';
+      }
+      if(label === 'C'){
+        btn.style.color = 'var(--text-danger)';
+      }
+      btn.addEventListener('click', () => press(label));
+      grid.appendChild(btn);
+    });
+  });
+
+  render();
+})();
+</script>
