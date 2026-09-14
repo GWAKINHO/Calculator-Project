@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>계산기</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="unit">
+  <div class="brand">
+    <span class="wordmark">Calc</span>
+    <span class="model">MODEL 86-B</span>
+  </div>
+
+  <div class="screen-frame">
+    <div class="display">
+      <div class="expr" id="expr"></div>
+      <div class="result" id="result">0</div>
+    </div>
+  </div>
+
+  <div class="pad">
+    <button class="fn" data-action="clear">C</button>
+    <button class="fn" data-action="sign">±</button>
+    <button class="fn" data-action="percent">%</button>
+    <button class="op" data-action="divide">÷</button>
+
+    <button class="num" data-action="7">7</button>
+    <button class="num" data-action="8">8</button>
+    <button class="num" data-action="9">9</button>
+    <button class="op" data-action="multiply">×</button>
+
+    <button class="num" data-action="4">4</button>
+    <button class="num" data-action="5">5</button>
+    <button class="num" data-action="6">6</button>
+    <button class="op" data-action="subtract">−</button>
+
+    <button class="num" data-action="1">1</button>
+    <button class="num" data-action="2">2</button>
+    <button class="num" data-action="3">3</button>
+    <button class="op" data-action="add">+</button>
+
+    <button class="num span2" data-action="0">0</button>
+    <button class="num" data-action="decimal">.</button>
+    <button class="eq" data-action="equals">=</button>
+  </div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
